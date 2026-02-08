@@ -1,0 +1,165 @@
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+
+// 🌹 Animated falling roses component
+const FallingRoses = () => {
+  const roses = new Array(18).fill(0);
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden">
+      {roses.map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ y: -50, x: Math.random() * window.innerWidth }}
+          animate={{ y: "110vh" }}
+          transition={{ duration: 6 + Math.random() * 6, repeat: Infinity }}
+          className="absolute text-2xl"
+        >
+          🌹
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+export default function App() {
+  const [currentPage, setCurrentPage] = useState("intro");
+  const [theme, setTheme] = useState("cute");
+  const [noScale, setNoScale] = useState(1);
+  const [noOffset, setNoOffset] = useState({ x: 0, y: 0 });
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    document.title = "To my one and only";
+  }, []);
+
+  const playMusic = () => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.4;
+      audioRef.current.play().catch(() => {});
+    }
+  };
+
+  const handleReadyClick = () => {
+    setCurrentPage("proposal");
+    setTheme("cute");
+    playMusic();
+  };
+
+  const handleYesAbsolutelyClick = () => {
+    setCurrentPage("accepted");
+  };
+
+  // ❌ No button now ONLY shrinks + moves — no navigation
+  const handleNoClick = () => {
+    setNoScale((prev) => (prev > 0.35 ? prev - 0.1 : prev));
+    setNoOffset({
+      x: (Math.random() - 0.5) * 220,
+      y: (Math.random() - 0.5) * 140,
+    });
+  };
+
+  const containerClasses = `
+    font-sans min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-700
+    overflow-x-hidden overflow-y-auto
+    ${theme === "cute" ? "bg-pink-100 text-pink-800" : "bg-gray-900 text-gray-200"}
+  `;
+
+  return (
+    <div className={containerClasses}>
+      {/* 🎵 Romantic Background Music */}
+      <audio
+        ref={audioRef}
+        loop
+        src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8a4e1c5d3.mp3?filename=romantic-background-112191.mp3"
+      />
+
+      {currentPage === "accepted" && <FallingRoses />}
+
+      {/* Intro */}
+      {currentPage === "intro" && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-5xl md:text-6xl font-extrabold mb-12 animate-pulse">
+            Are You Ready?
+          </h1>
+          <Button
+            onClick={handleReadyClick}
+            className="px-10 py-6 text-xl rounded-2xl shadow-xl"
+          >
+            I'm Ready!
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Proposal */}
+      {currentPage === "proposal" && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center max-w-2xl bg-white/90 p-8 rounded-3xl shadow-2xl border-4 border-pink-300"
+        >
+          <p className="text-xl md:text-2xl font-medium mb-8 leading-relaxed text-gray-800">
+            My beloved, with you I discovered a kind of happiness my heart had only dreamed of. Every second in your presence feels like a beautiful miracle.
+            <span className="text-pink-600 font-extrabold text-3xl block mt-6">
+              Would you like to spend the rest of our lives together?
+            </span>
+          </p>
+
+          <div className="flex flex-wrap gap-6 justify-center">
+            <Button
+              onClick={handleYesAbsolutelyClick}
+              className="text-lg md:text-2xl px-8 py-6 rounded-2xl"
+            >
+              Yes, Absolutely!
+            </Button>
+
+            <motion.button
+              onClick={handleNoClick}
+              animate={{ x: noOffset.x, y: noOffset.y, scale: noScale }}
+              whileTap={{ rotate: -10 }}
+              className="bg-red-500 text-white font-bold px-8 py-4 rounded-2xl shadow-lg"
+            >
+              No
+            </motion.button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Sad */}
+      
+
+      {/* Accepted */}
+      {currentPage === "accepted" && (
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center max-w-2xl bg-white/90 p-10 rounded-3xl shadow-2xl border-8 border-red-400"
+        >
+          <h1 className="text-6xl font-extrabold text-red-700 mb-6">
+            ❤️ Thank You! ❤️
+          </h1>
+
+          <p className="text-2xl font-semibold text-gray-800 mb-8">
+            My heart is overflowing with joy! I can't wait for our journey.
+          </p>
+
+          <div className="bg-red-600 text-white text-2xl font-bold p-6 rounded-2xl mb-6" dir="rtl">
+            انا طلع ميتين امي عشان احط صورة ورد وتظهر ومعرفتش فتخيليهم وخلاص
+          </div>
+
+          <p className="text-3xl font-bold text-red-600 mb-6 animate-pulse">
+            MANY ROSES FOR MY QUEENNN ❤️
+          </p>
+
+          <p className="text-4xl font-extrabold text-pink-700" dir="rtl">
+            بحبك يا احلى نودي فالدنيا
+          </p>
+        </motion.div>
+      )}
+    </div>
+  );
+}
